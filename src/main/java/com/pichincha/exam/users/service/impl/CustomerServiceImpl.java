@@ -31,7 +31,10 @@ public class CustomerServiceImpl implements CustomerService {
         log.info("Customer id deleted {}", clientId);
         return customerRepository.findById(Long.valueOf(clientId))
                 .switchIfEmpty(Mono.error(new ClientNotFound(NOT_FOUND)))
-                .doOnSuccess(client -> customerRepository.deleteById(client.getId()))
+                .flatMap(client -> {
+                    client.setStatus(Boolean.FALSE);
+                    return customerRepository.save(client);
+                })
                 .doOnError(throwable -> log.error("Error for delete for client {}", throwable.getMessage()))
                 .then();
 
@@ -40,10 +43,8 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public Flux<Client> getCustomerByFilter() {
         log.info("Customers obtained ");
-        return customerRepository.findAll()
-                .flatMap(client -> personRepository.findById(client.getPersonId())
-                        .map(person -> ClientMapper.INSTANCE.clientEntityToDto(person, client))
-                )
+        return customerRepository.findAllByStatus(Boolean.TRUE)
+                .flatMap(this::findByIdAndMapper)
                 .doOnError(throwable -> log.error("Error for get client's {}", throwable.getMessage()));
     }
 
@@ -51,10 +52,7 @@ public class CustomerServiceImpl implements CustomerService {
     public Mono<Client> getCustomerById(String clientId) {
         log.info("Client id {}", clientId);
         return customerRepository.findById(Long.valueOf(clientId))
-                .flatMap(client ->
-                        personRepository.findById(client.getPersonId())
-                                .map(person -> ClientMapper.INSTANCE.clientEntityToDto(person, client))
-                )
+                .flatMap(this::findByIdAndMapper)
                 .switchIfEmpty(Mono.error(new ClientNotFound(NOT_FOUND)))
                 .doOnError(throwable -> log.error("Error for get client {}", throwable.getMessage()));
     }
@@ -80,8 +78,7 @@ public class CustomerServiceImpl implements CustomerService {
         log.info("Customer updated id {} {}", userId, client);
         return customerRepository.findById(Long.valueOf(userId))
                 .switchIfEmpty(Mono.error(new ClientNotFound(NOT_FOUND)))
-                .flatMap(clientMono -> personRepository.findById(clientMono.getPersonId())
-                        .map(personMono -> ClientMapper.INSTANCE.clientEntityToDto(personMono, clientMono)))
+                .flatMap(this::findByIdAndMapper)
                 .doOnError(throwable -> log.error("Error for update customer {}", throwable.getMessage()));
     }
 
@@ -89,5 +86,10 @@ public class CustomerServiceImpl implements CustomerService {
     private String hashingPassForEntity(String password) {
         MessageDigest digest = MessageDigest.getInstance("SHA-256");
         return Base64.getEncoder().encodeToString(digest.digest(password.getBytes(StandardCharsets.UTF_8)));
+    }
+
+    private Mono<Client> findByIdAndMapper(com.pichincha.exam.users.domain.entity.Client client) {
+        return personRepository.findById(client.getPersonId())
+                .map(person -> ClientMapper.INSTANCE.clientEntityToDto(person, client));
     }
 }
