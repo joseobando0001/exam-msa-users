@@ -1,6 +1,5 @@
 package com.pichincha.exam.users.domain.entity;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,29 +9,27 @@ import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
-
-@Table(name = "Person")
+@Table(name = "Account")
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Person implements Serializable {
+public class Account implements Serializable {
     @Id
     private Long id;
 
-    @Column("name")
-    private String name;
+    @Column("number")
+    private String number;
 
-    @Column("gender")
-    private Gender gender;
+    @Column("type")
+    private String type;
 
-    @Column("identification")
-    private String identification;
+    @Column("initial_value")
+    private BigDecimal initial_value;
 
-    @Column("address")
-    private String address;
+    @Column("status")
+    private Boolean status;
 
-    @Column("phone")
-    private String phone;
 }

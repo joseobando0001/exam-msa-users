@@ -1,6 +1,7 @@
 package com.pichincha.exam.users.domain.entity;
 
-
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,28 +12,24 @@ import org.springframework.data.relational.core.mapping.Table;
 
 import java.io.Serializable;
 
-
-@Table(name = "Person")
+@Table(name = "Client")
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Person implements Serializable {
+public class Client implements Serializable {
     @Id
     private Long id;
 
-    @Column("name")
-    private String name;
+    @OneToOne
+    @JoinColumn(name = "persona_id", nullable = false)
+    private Person person;
 
-    @Column("gender")
-    private Gender gender;
+    @Column("password")
+    private String password;
 
-    @Column("identification")
-    private String identification;
+    @Column("status")
+    private Boolean status;
 
-    @Column("address")
-    private String address;
-
-    @Column("phone")
-    private String phone;
 }
+
