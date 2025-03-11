@@ -4,12 +4,18 @@ import com.pichincha.exam.models.Client;
 import com.pichincha.exam.users.exception.ClientNotFound;
 import com.pichincha.exam.users.helper.mapper.ClientMapper;
 import com.pichincha.exam.users.repository.CustomerRepository;
+import com.pichincha.exam.users.repository.PersonRepository;
 import com.pichincha.exam.users.service.CustomerService;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.util.Base64;
 
 import static com.pichincha.exam.users.util.constants.ErrorConstants.NOT_FOUND;
 
@@ -18,6 +24,7 @@ import static com.pichincha.exam.users.util.constants.ErrorConstants.NOT_FOUND;
 @RequiredArgsConstructor
 public class CustomerServiceImpl implements CustomerService {
     private final CustomerRepository customerRepository;
+    private final PersonRepository personRepository;
 
     @Override
     public Mono<Void> deleteCustomer(String clientId) {
@@ -34,7 +41,9 @@ public class CustomerServiceImpl implements CustomerService {
     public Flux<Client> getCustomerByFilter() {
         log.info("Customers obtained ");
         return customerRepository.findAll()
-                .map(ClientMapper.INSTANCE::clientEntityToDto)
+                .flatMap(client -> personRepository.findById(client.getPersonId())
+                        .map(person -> ClientMapper.INSTANCE.clientEntityToDto(person, client))
+                )
                 .doOnError(throwable -> log.error("Error for get client's {}", throwable.getMessage()));
     }
 
@@ -42,16 +51,27 @@ public class CustomerServiceImpl implements CustomerService {
     public Mono<Client> getCustomerById(String clientId) {
         log.info("Client id {}", clientId);
         return customerRepository.findById(Long.valueOf(clientId))
+                .flatMap(client ->
+                        personRepository.findById(client.getPersonId())
+                                .map(person -> ClientMapper.INSTANCE.clientEntityToDto(person, client))
+                )
                 .switchIfEmpty(Mono.error(new ClientNotFound(NOT_FOUND)))
-                .map(ClientMapper.INSTANCE::clientEntityToDto)
                 .doOnError(throwable -> log.error("Error for get client {}", throwable.getMessage()));
     }
 
     @Override
     public Mono<Client> postCustomer(Client client) {
         log.info("Customer created {}", client);
-        return customerRepository.save(ClientMapper.INSTANCE.clientDtoToEntity(client))
-                .map(ClientMapper.INSTANCE::clientEntityToDto)
+        return personRepository.findByPhone(client.getPhone())
+                .flatMap(person ->
+                {
+                    com.pichincha.exam.users.domain.entity.Client entity = new com.pichincha.exam.users.domain.entity.Client();
+                    entity.setPassword(hashingPassForEntity(client.getPassword()));
+                    entity.setStatus(client.getStatus());
+                    entity.setPersonId(person.getId());
+                    return customerRepository.save(entity)
+                            .map(clientMono -> ClientMapper.INSTANCE.clientEntityToDto(person, clientMono));
+                })
                 .doOnError(throwable -> log.error("Error for creation of client {}", throwable.getMessage()));
     }
 
@@ -60,8 +80,14 @@ public class CustomerServiceImpl implements CustomerService {
         log.info("Customer updated id {} {}", userId, client);
         return customerRepository.findById(Long.valueOf(userId))
                 .switchIfEmpty(Mono.error(new ClientNotFound(NOT_FOUND)))
-                .map(client1 -> ClientMapper.INSTANCE.clientDtoToEntity(client))
-                .map(ClientMapper.INSTANCE::clientEntityToDto)
+                .flatMap(clientMono -> personRepository.findById(clientMono.getPersonId())
+                        .map(personMono -> ClientMapper.INSTANCE.clientEntityToDto(personMono, clientMono)))
                 .doOnError(throwable -> log.error("Error for update customer {}", throwable.getMessage()));
+    }
+
+    @SneakyThrows
+    private String hashingPassForEntity(String password) {
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        return Base64.getEncoder().encodeToString(digest.digest(password.getBytes(StandardCharsets.UTF_8)));
     }
 }

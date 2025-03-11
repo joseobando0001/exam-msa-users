@@ -1,7 +1,5 @@
 package com.pichincha.exam.users.domain.entity;
 
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,9 +19,8 @@ public class Client implements Serializable {
     @Id
     private Long id;
 
-    @OneToOne
-    @JoinColumn(name = "persona_id", nullable = false)
-    private Person person;
+    @Column("person_id")
+    private Long personId;
 
     @Column("password")
     private String password;
