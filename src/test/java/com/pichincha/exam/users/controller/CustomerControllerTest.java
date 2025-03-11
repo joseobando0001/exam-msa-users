@@ -16,7 +16,8 @@ import reactor.test.StepVerifier;
 
 import static com.pichincha.exam.users.util.MockUtil.buildClient;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class CustomerControllerTest {
@@ -56,24 +57,29 @@ class CustomerControllerTest {
     void getCustomerById() {
         when(customerService.getCustomerById(any())).thenReturn(Mono.just(buildClient()));
         request = MockServerHttpRequest.get(LOCAL).build();
-        StepVerifier.create(customerController.getCustomerById("1", MockServerWebExchange.from(request)))
+        StepVerifier.create(customerController.getCustomerById("2", MockServerWebExchange.from(request)))
                 .expectComplete();
     }
 
     @Test
     void postCustomer() {
-        lenient().when(customerService.postCustomer(any())).thenReturn(Mono.just(buildClient()));
+        when(customerService.postCustomer(any())).thenReturn(Mono.just(buildClient()));
         request = MockServerHttpRequest.post(LOCAL).build();
         StepVerifier.create(customerController.postCustomer(Mono.just(buildClient()), MockServerWebExchange.from(request)))
-                .expectComplete();
+                .expectNextMatches(clientResponseEntity -> clientResponseEntity.getStatusCode().is2xxSuccessful())
+                .expectComplete()
+                .verify()
+        ;
     }
 
     @Test
     void putCustomer() {
-        lenient().when(customerService.putCustomer(any(), any())).thenReturn(Mono.just(buildClient()));
+        when(customerService.putCustomer(any(), any())).thenReturn(Mono.just(buildClient()));
         request = MockServerHttpRequest.put(LOCAL).build();
-        StepVerifier.create(customerController.putCustomer("1", Mono.just(buildClient()), MockServerWebExchange.from(request)))
-                .expectComplete();
+        StepVerifier.create(customerController.putCustomer("3", Mono.just(buildClient()), MockServerWebExchange.from(request)))
+                .expectNextMatches(clientResponseEntity -> clientResponseEntity.getStatusCode().is2xxSuccessful())
+                .expectComplete()
+                .verify();
     }
 
 }
