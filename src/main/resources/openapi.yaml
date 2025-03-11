@@ -79,6 +79,7 @@ paths:
       tags:
         - Customer
       summary: Update a customer
+      operationId: PutCustomer
       description: Update a customer.
       parameters:
         - name: userId
@@ -107,6 +108,7 @@ paths:
       tags:
         - Customer
       summary: Delete customer
+      operationId: DeleteCustomer
       description: Delete customer
       parameters:
         - name: userId

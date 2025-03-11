@@ -35,6 +35,9 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-r2dbc'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'io.r2dbc:r2dbc-h2:1.0.0.RELEASE'
+	implementation 'org.springdoc:springdoc-openapi-webflux-ui:1.8.0'
+
+	implementation 'io.swagger.core.v3:swagger-annotations:2.2.28'
 
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'com.h2database:h2'
@@ -54,11 +57,18 @@ tasks.register('buildSpringContract', GenerateTask) {
 	invokerPackage = "com.pichincha.exam"
 	modelPackage = "com.pichincha.exam.models"
 	configOptions = [
+			serializableModel: "true",
+			openApiNullable: "false",
 			dateLibrary: "java8",
+			useJakartaEe: "true",
+			basePackage: "com.pichincha",
+			sourceFolder: "src/main/java",
 			interfaceOnly: "true",
 			reactive: "true"
 	]
 }
+
+sourceSets.main.java.srcDirs = ["src/main/java","$buildDir/generated/src/main/java",]
 
 compileJava{
 	dependsOn buildSpringContract
