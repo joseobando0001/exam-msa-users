@@ -1,4 +1,4 @@
-CREATE TABLE Person (
+CREATE TABLE IF NOT EXISTS Person (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     gender CHAR(1) NOT NULL,
@@ -7,26 +7,9 @@ CREATE TABLE Person (
     phone VARCHAR(20) NOT NULL
 );
 
-CREATE TABLE Client (
+CREATE TABLE IF NOT EXISTS Client (
     id SERIAL PRIMARY KEY,
     person_id INT REFERENCES Person(id) ON DELETE CASCADE,
     password VARCHAR(255) NOT NULL,
     status BOOLEAN NOT NULL
-);
-
-CREATE TABLE Account (
-    id SERIAL PRIMARY KEY,
-    number VARCHAR(50) UNIQUE NOT NULL,
-    type VARCHAR(20) NOT NULL,
-    initial_value DECIMAL(15,2) NOT NULL,
-    status BOOLEAN NOT NULL
-);
-
-CREATE TABLE Movement (
-    id SERIAL PRIMARY KEY,
-    date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    type VARCHAR(20) NOT NULL,
-    value DECIMAL(15,2) NOT NULL,
-    balance DECIMAL(15,2) NOT NULL,
-    account_id INT REFERENCES Account(id) ON DELETE CASCADE
 );
