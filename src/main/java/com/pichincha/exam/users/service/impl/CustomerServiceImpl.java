@@ -1,6 +1,7 @@
 package com.pichincha.exam.users.service.impl;
 
 import com.pichincha.exam.models.Client;
+import com.pichincha.exam.users.configuration.PublisherEvent;
 import com.pichincha.exam.users.exception.ClientNotFound;
 import com.pichincha.exam.users.helper.mapper.ClientMapper;
 import com.pichincha.exam.users.repository.CustomerRepository;
@@ -25,6 +26,7 @@ import static com.pichincha.exam.users.util.constants.ErrorConstants.NOT_FOUND;
 public class CustomerServiceImpl implements CustomerService {
     private final CustomerRepository customerRepository;
     private final PersonRepository personRepository;
+    private final PublisherEvent publisherEvent;
 
     @Override
     public Mono<Void> deleteCustomer(String clientId) {
@@ -68,6 +70,7 @@ public class CustomerServiceImpl implements CustomerService {
                     entity.setStatus(client.getStatus());
                     entity.setPersonId(person.getId());
                     return customerRepository.save(entity)
+                            .doOnSuccess(publisherEvent::sendMessage)
                             .map(clientMono -> ClientMapper.INSTANCE.clientEntityToDto(person, clientMono));
                 })
                 .doOnError(throwable -> log.error("Error for creation of client {}", throwable.getMessage()));

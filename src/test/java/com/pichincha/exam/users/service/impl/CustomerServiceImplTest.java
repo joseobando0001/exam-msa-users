@@ -1,5 +1,6 @@
 package com.pichincha.exam.users.service.impl;
 
+import com.pichincha.exam.users.configuration.PublisherEvent;
 import com.pichincha.exam.users.repository.CustomerRepository;
 import com.pichincha.exam.users.repository.PersonRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,6 +28,9 @@ class CustomerServiceImplTest {
 
     @Mock
     PersonRepository personRepository;
+
+    @Mock
+    PublisherEvent publisherEvent;
 
 
     @BeforeEach
@@ -65,6 +69,8 @@ class CustomerServiceImplTest {
     void postCustomer() {
         when(personRepository.findByPhone(any())).thenReturn(Mono.just(buildPersonEntity()));
         when(customerRepository.save(any())).thenReturn(Mono.just(buildClientEntity()));
+        when(publisherEvent.sendMessage(any())).thenReturn(Mono.just(Boolean.TRUE));
+
         StepVerifier.create(customerService.postCustomer(buildClient()))
                 .expectNextMatches(client -> !client.getPhone().isBlank())
                 .expectComplete()

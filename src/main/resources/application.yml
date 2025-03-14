@@ -9,6 +9,28 @@ spring:
       enabled: true
   web-flux:
     base-path: /api/v1/
+  cloud:
+    stream:
+      bindings:
+        producerClient-out-0:
+          destination: topic_exam_account_movements
+      source: producerClient
+      kafka:
+        binder:
+          configuration:
+            sasl:
+              mechanism: PLAIN
+              jaas:
+                config: org.apache.kafka.common.security.plain.PlainLoginModule required username='N5LYZOW2JXYIZK5C' password='jpwSdzwVVzVWBJw1RTFQRVpcpPtCG8YUyiVLBivpj+hpB12UlR44s8ppiKMp+Gdx';
+            security:
+              protocol: SASL_SSL
+          brokers: pkc-619z3.us-east1.gcp.confluent.cloud:9092
+session:
+  timeout:
+    ms: 45000
+acks: all
+client:
+  id: ccloud-java-client-d12428f7-00a8-4077-88f6-4496c0a06551
 management:
   endpoints:
     web:
