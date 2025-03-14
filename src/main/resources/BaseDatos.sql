@@ -1,0 +1,15 @@
+CREATE TABLE IF NOT EXISTS Person (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    gender VARCHAR(15) NOT NULL,
+    identification VARCHAR(50) UNIQUE NOT NULL,
+    address VARCHAR(350) NOT NULL,
+    phone VARCHAR(20) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS Client (
+    id SERIAL PRIMARY KEY,
+    person_id INT REFERENCES Person(id) ON DELETE CASCADE,
+    password VARCHAR(255) NOT NULL,
+    status BOOLEAN NOT NULL
+);
