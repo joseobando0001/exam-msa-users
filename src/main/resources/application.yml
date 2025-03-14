@@ -29,8 +29,6 @@ session:
   timeout:
     ms: 45000
 acks: all
-client:
-  id: ccloud-java-client-d12428f7-00a8-4077-88f6-4496c0a06551
 management:
   endpoints:
     web:
