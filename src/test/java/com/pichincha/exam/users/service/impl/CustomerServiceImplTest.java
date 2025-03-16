@@ -9,6 +9,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -32,6 +33,9 @@ class CustomerServiceImplTest {
     @Mock
     PublisherEvent publisherEvent;
 
+    @Mock
+    TransactionalOperator transactionalOperator;
+
 
     @BeforeEach
     void setUp() {
@@ -41,6 +45,8 @@ class CustomerServiceImplTest {
     void deleteCustomer() {
         when(customerRepository.findById(any(Long.class))).thenReturn(Mono.just(buildClientEntity()));
         when(customerRepository.save(any())).thenReturn(Mono.just(buildClientEntity()));
+        when(transactionalOperator.transactional(any(Mono.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
         StepVerifier.create(customerService.deleteCustomer("1"))
                 .expectComplete()
                 .verify();
@@ -70,7 +76,8 @@ class CustomerServiceImplTest {
         when(personRepository.findByPhone(any())).thenReturn(Mono.just(buildPersonEntity()));
         when(customerRepository.save(any())).thenReturn(Mono.just(buildClientEntity()));
         when(publisherEvent.sendMessage(any())).thenReturn(Mono.just(Boolean.TRUE));
-
+        when(transactionalOperator.transactional(any(Mono.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
         StepVerifier.create(customerService.postCustomer(buildClient()))
                 .expectNextMatches(client -> !client.getPhone().isBlank())
                 .expectComplete()
@@ -81,6 +88,8 @@ class CustomerServiceImplTest {
     void putCustomer() {
         when(customerRepository.findById(any(Long.class))).thenReturn(Mono.just(buildClientEntity()));
         when(personRepository.findById(any(Long.class))).thenReturn(Mono.just(buildPersonEntity()));
+        when(transactionalOperator.transactional(any(Mono.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
         StepVerifier.create(customerService.putCustomer("1", buildClient()))
                 .expectNextMatches(client -> !client.getAddress().isBlank())
                 .expectComplete()

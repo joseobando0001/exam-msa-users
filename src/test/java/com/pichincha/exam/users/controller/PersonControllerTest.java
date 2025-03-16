@@ -8,6 +8,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -34,5 +35,15 @@ class PersonControllerTest {
                 .expectComplete()
                 .verify()
         ;
+    }
+
+    @Test
+    void getPersonByFilter() {
+        when(personService.getPersonByFilter()).thenReturn(Flux.just(buildPerson()));
+        StepVerifier.create(personController.getPersonByFilter(
+                        MockServerWebExchange.from(MockServerHttpRequest.get("http://localhost/person").build())))
+                .expectNextMatches(clientResponseEntity -> clientResponseEntity.getStatusCode().is2xxSuccessful())
+                .expectComplete()
+                .verify();
     }
 }
