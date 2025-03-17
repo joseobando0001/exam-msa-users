@@ -13,6 +13,7 @@ de que se encuentra creado con API First y OpenApi Generator.
 Puedes acceder a la documentación y probar la API mediante el Openapi adjunto de cada uno de los microservicios:
 - **Users API**: [View Demo](https://exam-p-949b6094fe5d.herokuapp.com/)
 - **Accounts API**: [View Demo](https://exam-msa-accounts-61fa437c4bce.herokuapp.com/)
+- **BLUEPRINT**: [Enlace](https://app.mural.co/t/work66507/m/work66507/1741650289420/53b9997f7bcc6787f5fa539e5ad3f2eed1c1befd?sender=u7d804a99d67c6a5724d42908)
 
 ## Quick start 🚀
 
