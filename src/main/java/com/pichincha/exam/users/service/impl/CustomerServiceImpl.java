@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -27,6 +28,7 @@ public class CustomerServiceImpl implements CustomerService {
     private final CustomerRepository customerRepository;
     private final PersonRepository personRepository;
     private final PublisherEvent publisherEvent;
+    private final TransactionalOperator transactionalOperator;
 
     @Override
     public Mono<Void> deleteCustomer(String clientId) {
@@ -37,9 +39,9 @@ public class CustomerServiceImpl implements CustomerService {
                     client.setStatus(Boolean.FALSE);
                     return customerRepository.save(client);
                 })
+                .as(transactionalOperator::transactional)
                 .doOnError(throwable -> log.error("Error for delete for client {}", throwable.getMessage()))
                 .then();
-
     }
 
     @Override
@@ -73,6 +75,7 @@ public class CustomerServiceImpl implements CustomerService {
                             .doOnSuccess(publisherEvent::sendMessage)
                             .map(clientMono -> ClientMapper.INSTANCE.clientEntityToDto(person, clientMono));
                 })
+                .as(transactionalOperator::transactional)
                 .doOnError(throwable -> log.error("Error for creation of client {}", throwable.getMessage()));
     }
 
@@ -82,6 +85,7 @@ public class CustomerServiceImpl implements CustomerService {
         return customerRepository.findById(Long.valueOf(userId))
                 .switchIfEmpty(Mono.error(new ClientNotFound(NOT_FOUND)))
                 .flatMap(this::findByIdAndMapper)
+                .as(transactionalOperator::transactional)
                 .doOnError(throwable -> log.error("Error for update customer {}", throwable.getMessage()));
     }
 
