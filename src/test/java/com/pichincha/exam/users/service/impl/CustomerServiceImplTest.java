@@ -1,8 +1,9 @@
 package com.pichincha.exam.users.service.impl;
 
-import com.pichincha.exam.users.configuration.PublisherEvent;
-import com.pichincha.exam.users.repository.CustomerRepository;
-import com.pichincha.exam.users.repository.PersonRepository;
+import com.pichincha.exam.users.application.service.impl.CustomerServiceImpl;
+import com.pichincha.exam.users.infrastructure.configuration.PublisherEvent;
+import com.pichincha.exam.users.infrastructure.output.repository.CustomerRepository;
+import com.pichincha.exam.users.infrastructure.output.repository.PersonRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -78,7 +79,7 @@ class CustomerServiceImplTest {
         when(publisherEvent.sendMessage(any())).thenReturn(Mono.just(Boolean.TRUE));
         when(transactionalOperator.transactional(any(Mono.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
-        StepVerifier.create(customerService.postCustomer(buildClient()))
+        StepVerifier.create(customerService.postCustomer(buildClientRequest()))
                 .expectNextMatches(client -> !client.getPhone().isBlank())
                 .expectComplete()
                 .verify();
@@ -90,7 +91,7 @@ class CustomerServiceImplTest {
         when(personRepository.findById(any(Long.class))).thenReturn(Mono.just(buildPersonEntity()));
         when(transactionalOperator.transactional(any(Mono.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
-        StepVerifier.create(customerService.putCustomer("1", buildClient()))
+        StepVerifier.create(customerService.putCustomer("1", buildClientRequest()))
                 .expectNextMatches(client -> !client.getAddress().isBlank())
                 .expectComplete()
                 .verify();

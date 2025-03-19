@@ -1,0 +1,35 @@
+spring:
+  r2dbc:
+   url: r2dbc:h2:mem:///${DB_NAME}
+   username: ${DB_USER}
+   password:
+     driver: h2
+  h2:
+    console:
+      enabled: true
+  web-flux:
+    base-path: /api/v1/
+  cloud:
+    stream:
+      bindings:
+        producerClient-out-0:
+          destination: ${TOPIC}
+      source: ${PRODUCER_SOURCE}
+      kafka:
+        binder:
+          configuration:
+            sasl:
+              mechanism: PLAIN
+              jaas:
+                config: org.apache.kafka.common.security.plain.PlainLoginModule required username='${KAFKA_USERNAME}' password='${KAFKA_PASSWORD}';
+            security:
+              protocol: SASL_SSL
+          brokers: ${KAFKA_BROKER}
+session:
+  timeout:
+    ms: 45000
+acks: all
+management:
+  endpoints:
+    web:
+      base-path: actuator

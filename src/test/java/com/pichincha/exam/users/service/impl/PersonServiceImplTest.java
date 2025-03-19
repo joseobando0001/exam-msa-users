@@ -1,7 +1,8 @@
 package com.pichincha.exam.users.service.impl;
 
-import com.pichincha.exam.models.Person;
-import com.pichincha.exam.users.repository.PersonRepository;
+import com.pichincha.exam.models.PersonResponse;
+import com.pichincha.exam.users.application.service.impl.PersonServiceImpl;
+import com.pichincha.exam.users.infrastructure.output.repository.PersonRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -12,8 +13,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import static com.pichincha.exam.users.util.MockUtil.buildPerson;
 import static com.pichincha.exam.users.util.MockUtil.buildPersonEntity;
+import static com.pichincha.exam.users.util.MockUtil.buildPersonRequest;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -33,8 +34,8 @@ class PersonServiceImplTest {
     void postPerson() {
         when(personRepository.save(any())).thenReturn(Mono.just(buildPersonEntity()));
         when(transactionalOperator.transactional(any(Mono.class))).thenAnswer(invocation -> invocation.getArgument(0));
-        StepVerifier.create(personService.postPerson(buildPerson()))
-                .expectNextMatches(person -> person.getGender().equals(Person.GenderEnum.MALE))
+        StepVerifier.create(personService.postPerson(buildPersonRequest()))
+                .expectNextMatches(person -> person.getGender().equals(PersonResponse.GenderEnum.MALE))
                 .expectComplete()
                 .verify();
     }
@@ -48,7 +49,7 @@ class PersonServiceImplTest {
                     Mono<?> mono = invocation.getArgument(0);
                     return mono.onErrorResume(Mono::error);
                 });
-        StepVerifier.create(personService.postPerson(buildPerson()))
+        StepVerifier.create(personService.postPerson(buildPersonRequest()))
                 .expectErrorMatches(throwable -> throwable instanceof RuntimeException)
                 .verify();
     }

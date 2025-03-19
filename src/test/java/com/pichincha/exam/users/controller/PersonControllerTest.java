@@ -1,6 +1,7 @@
 package com.pichincha.exam.users.controller;
 
-import com.pichincha.exam.users.service.PersonService;
+import com.pichincha.exam.users.application.port.PersonService;
+import com.pichincha.exam.users.infrastructure.input.adapter.rest.impl.PersonController;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -12,7 +13,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import static com.pichincha.exam.users.util.MockUtil.buildPerson;
+import static com.pichincha.exam.users.util.MockUtil.buildPersonRequest;
+import static com.pichincha.exam.users.util.MockUtil.buildPersonResponse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -27,9 +29,9 @@ class PersonControllerTest {
 
     @Test
     void postPerson() {
-        when(personService.postPerson(any())).thenReturn(Mono.just(buildPerson()));
+        when(personService.postPerson(any())).thenReturn(Mono.just(buildPersonResponse()));
         StepVerifier.create(personController.postPerson((
-                                Mono.just(buildPerson())),
+                                Mono.just(buildPersonRequest())),
                         MockServerWebExchange.from(MockServerHttpRequest.post("http://localhost/person").build())))
                 .expectNextMatches(clientResponseEntity -> clientResponseEntity.getStatusCode().is2xxSuccessful())
                 .expectComplete()
@@ -39,7 +41,7 @@ class PersonControllerTest {
 
     @Test
     void getPersonByFilter() {
-        when(personService.getPersonByFilter()).thenReturn(Flux.just(buildPerson()));
+        when(personService.getPersonByFilter()).thenReturn(Flux.just(buildPersonResponse()));
         StepVerifier.create(personController.getPersonByFilter(
                         MockServerWebExchange.from(MockServerHttpRequest.get("http://localhost/person").build())))
                 .expectNextMatches(clientResponseEntity -> clientResponseEntity.getStatusCode().is2xxSuccessful())
