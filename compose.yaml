@@ -1,6 +1,6 @@
 services:
   users:
-    image: joseobando0001/users:v1
+    image: joseobando0001/users
     networks:
       - my_shared_network
     build:
@@ -19,7 +19,7 @@ services:
       - "8080:80"
 
   accounts:
-    image: joseobando0001/accounts:v1
+    image: joseobando0001/accounts
     ports:
       - "8081:8081"
     networks:
