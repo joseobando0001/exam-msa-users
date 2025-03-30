@@ -173,12 +173,14 @@ components:
           maxLength: 100
           description: Names for client
           example: Jose Lema
+          pattern: '^[A-Za-z\s]+$'
         address:
           type: string
           minLength: 1
           maxLength: 200
           description: Address for client
           example: Otavalo sn y principal
+          pattern: '^[A-Za-z0-9\s.,-]+$'
         phone:
           type: string
           pattern: '^\d{10}$'
@@ -231,6 +233,7 @@ components:
           minLength: 1
           maxLength: 100
           description: Name of the person
+          pattern: '^[A-Za-z\s]+$'
         gender:
           type: string
           enum:
@@ -243,11 +246,13 @@ components:
           minLength: 1
           maxLength: 20
           description: Identification number or document of the person
+          pattern: '^[A-Z0-9]+$'
         address:
           type: string
           minLength: 1
           maxLength: 200
           description: Address of the person
+          pattern: '^[A-Za-z0-9\s.,-]+$'
         phone:
           type: string
           pattern: '^\d{10}$'
